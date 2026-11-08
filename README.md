@@ -35,12 +35,12 @@ Voraussetzung: Das GitHub-Repo ist öffentlich, sonst kann Jellyfin Manifest und
 
 ### Manuell
 
-1. `build.ps1` ausführen (oder das fertige `dist\PlaybackInfo_1.0.0.0.zip` nehmen).
-2. Den Ordner `dist\PlaybackInfo_1.0.0.0` (mit `Jellyfin.Plugin.PlaybackInfo.dll` und `meta.json`) in das
+1. `build.ps1` ausführen (oder das fertige `dist\PlaybackInfo_1.0.0.1.zip` nehmen).
+2. Den Ordner `dist\PlaybackInfo_1.0.0.1` (mit `Jellyfin.Plugin.PlaybackInfo.dll` und `meta.json`) in das
    Plugin-Verzeichnis des Servers kopieren:
-   - Docker: `/config/plugins/PlaybackInfo_1.0.0.0/`
-   - Linux (Paket): `/var/lib/jellyfin/plugins/PlaybackInfo_1.0.0.0/`
-   - Windows: `%ProgramData%\Jellyfin\Server\plugins\PlaybackInfo_1.0.0.0\`
+   - Docker: `/config/plugins/PlaybackInfo_1.0.0.1/`
+   - Linux (Paket): `/var/lib/jellyfin/plugins/PlaybackInfo_1.0.0.1/`
+   - Windows: `%ProgramData%\Jellyfin\Server\plugins\PlaybackInfo_1.0.0.1\`
 3. Jellyfin neu starten und im Browser einmal hart neu laden (Strg+F5).
 4. Einstellungen: *Dashboard → Plugins → Playback Info*.
 

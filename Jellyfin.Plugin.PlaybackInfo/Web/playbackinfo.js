@@ -275,7 +275,25 @@
         return p;
     }
 
-    function getOwnSession(c) {
+    // Item id and media source id of the stream the <video> element is playing, read from
+    // its URL (direct play: /Videos/{id}/stream...; HLS without MSE: /videos/{id}/master.m3u8).
+    // With hls.js the source is a blob: URL and both stay null.
+    function srcInfo(video) {
+        var src = (video && (video.currentSrc || video.src)) || '';
+        var m = /\/videos\/([0-9a-f]{32}|[0-9a-f-]{36})\//i.exec(src);
+        var ms = /[?&]mediaSourceId=([^&#]+)/i.exec(src);
+        return {
+            src: src,
+            itemId: m ? m[1].replace(/-/g, '').toLowerCase() : null,
+            mediaSourceId: ms ? decodeURIComponent(ms[1]).replace(/-/g, '').toLowerCase() : null
+        };
+    }
+
+    function normId(id) {
+        return id ? String(id).replace(/-/g, '').toLowerCase() : '';
+    }
+
+    function getOwnSession(c, info) {
         var deviceId = typeof c.deviceId === 'function' ? c.deviceId() : null;
         var url = c.getUrl('Sessions', deviceId ? { deviceId: deviceId } : {});
         return Promise.resolve(c.ajax({ type: 'GET', url: url, dataType: 'json' })).then(function (sessions) {
@@ -283,14 +301,20 @@
             var mine = sessions.filter(function (s) {
                 return s.NowPlayingItem && (!deviceId || s.DeviceId === deviceId);
             });
+            if (info.itemId) {
+                // Only trust a session that reports the very item the player is playing;
+                // right after a switch the server may still report the previous one.
+                mine = mine.filter(function (s) { return normId(s.NowPlayingItem.Id) === info.itemId; });
+            }
             return mine[0] || null;
         });
     }
 
     function pickSource(item, mediaSourceId) {
         var sources = (item && item.MediaSources) || [];
+        var wanted = normId(mediaSourceId);
         for (var i = 0; i < sources.length; i++) {
-            if (sources[i].Id === mediaSourceId) return sources[i];
+            if (wanted && normId(sources[i].Id) === wanted) return sources[i];
         }
         return sources[0] || null;
     }
@@ -311,10 +335,10 @@
 
     // Builds the view model from the session (what the server delivers) and the
     // item's media source (what the file contains).
-    function buildModel(session, item, video) {
+    function buildModel(session, item, video, info) {
         var ps = session.PlayState || {};
         var ti = session.TranscodingInfo || null;
-        var source = pickSource(item, ps.MediaSourceId);
+        var source = pickSource(item, (info && info.mediaSourceId) || ps.MediaSourceId);
         var vs = pickStream(source, 'Video', null);
         var as = pickStream(source, 'Audio', ps.AudioStreamIndex);
 
@@ -428,20 +452,51 @@
     }
 
     // ------------------------------------------------------------------ OSD
+    var BUSY_TIMEOUT_MS = 15000;
+
     var state = {
         el: null,
         lastFetch: 0,
         busy: false,
+        busySince: 0,
+        generation: 0,
         visible: false,
+        src: '',
         html: ''
     };
 
+    // jellyfin-web can keep an older, hidden #videoOsdPage in the DOM next to the active
+    // one (duplicate ids), so getElementById may return the stale page. Use the visible one.
     function findOsd() {
-        var page = document.getElementById('videoOsdPage');
-        if (!page || page.classList.contains('hide')) {
-            return null;
+        var pages = document.querySelectorAll('[id="videoOsdPage"]');
+        for (var i = pages.length - 1; i >= 0; i--) {
+            var page = pages[i];
+            if (!page.classList.contains('hide') && page.getClientRects().length > 0) {
+                return page.querySelector('.videoOsdBottom-maincontrols');
+            }
         }
-        return page.querySelector('.videoOsdBottom-maincontrols');
+        return null;
+    }
+
+    function findVideo() {
+        var videos = document.querySelectorAll('.videoPlayerContainer video, video.htmlvideoplayer');
+        for (var i = videos.length - 1; i >= 0; i--) {
+            if (videos[i].getClientRects().length > 0) return videos[i];
+        }
+        return videos[videos.length - 1] || null;
+    }
+
+    // Forget everything shown so far: a different video (or player page) is active.
+    function reset() {
+        state.generation++;
+        state.busy = false;
+        state.lastFetch = 0;
+        state.html = '';
+        if (state.el) {
+            state.el.classList.add('hide');
+            state.el.innerHTML = '';
+            state.el.title = '';
+        }
     }
 
     function osdVisible(osd) {
@@ -453,8 +508,13 @@
         if (state.el && osd.contains(state.el)) {
             return state.el;
         }
+        if (state.el && state.el.parentNode) {
+            // Line from an older player page: remove it, so it can never show stale data.
+            state.el.parentNode.removeChild(state.el);
+        }
         var el = document.createElement('div');
-        el.className = 'osdTextContainer pbiOsd hide';
+        // Deliberately not jellyfin-web's osdTextContainer: themes restyle or hide that class.
+        el.className = 'pbiOsd hide';
         el.setAttribute('aria-live', 'off');
         var anchor = osd.querySelector('.osdSecondaryMediaInfo') || osd.querySelector('.osdMainTextContainer');
         if (anchor && anchor.parentNode) {
@@ -470,20 +530,29 @@
 
     function refresh(osd) {
         var c = apiClient();
-        if (!c || state.busy) {
+        if (!c) {
             return;
         }
+        if (state.busy && Date.now() - state.busySince < BUSY_TIMEOUT_MS) {
+            return;
+        }
+        var gen = ++state.generation;
         state.busy = true;
+        state.busySince = Date.now();
         state.lastFetch = Date.now();
-        var video = document.querySelector('#videoOsdPage video, .videoPlayerContainer video');
-        getOwnSession(c).then(function (session) {
+        var video = findVideo();
+        var info = srcInfo(video);
+        getOwnSession(c, info).then(function (session) {
             if (!session) {
                 return null;
             }
             return getItem(c, session.NowPlayingItem.Id).then(function (item) {
-                return buildModel(session, item, video);
+                return buildModel(session, item, video, info);
             });
         }).then(function (m) {
+            if (gen !== state.generation) {
+                return; // outdated answer (video changed meanwhile)
+            }
             var el = ensureLine(osd);
             if (!m) {
                 el.classList.add('hide');
@@ -499,15 +568,31 @@
         }).catch(function (e) {
             console.warn('PlaybackInfo: could not load playback info', e);
         }).then(function () {
-            state.busy = false;
+            if (gen === state.generation) {
+                state.busy = false;
+            }
         });
     }
 
     function tick() {
         var osd = findOsd();
         if (!osd) {
+            if (state.src) {
+                state.src = '';
+                reset();
+            }
             state.visible = false;
             return;
+        }
+        if (state.el && !osd.contains(state.el)) {
+            reset();
+            ensureLine(osd);
+        }
+        var video = findVideo();
+        var src = (video && (video.currentSrc || video.src)) || '';
+        if (src !== state.src) {
+            state.src = src;
+            reset();
         }
         var visible = osdVisible(osd);
         var becameVisible = visible && !state.visible;
