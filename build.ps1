@@ -1,6 +1,6 @@
 # Builds the plugin and packs a ready-to-install folder + zip into .\dist
 param(
-    [string]$Version = "1.0.0.1"
+    [string]$Version = "1.0.0.2"
 )
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
@@ -24,7 +24,7 @@ Copy-Item (Join-Path $root "images\logo.png") $folder
 
 $meta = [ordered]@{
     category    = "General"
-    changelog   = "Fix: line stayed hidden and could show a previous video when jellyfin-web kept an old player page; matches the session to the playing video"
+    changelog   = "Layout: same text size as the time display, more space above the timeline, starts flush with the timeline"
     description = "Shows resolution, video codec, bitrate and the play method (Direct Play, Direct Stream or Transcoding, with the transcode reasons) in the web player while the playback controls are visible."
     guid        = "67fca38c-954e-4db0-8a82-eaaaf1bde3da"
     name        = "Playback Info"

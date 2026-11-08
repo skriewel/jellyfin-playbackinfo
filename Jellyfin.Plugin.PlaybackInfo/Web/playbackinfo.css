@@ -9,8 +9,11 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.25em 0.9em;
-    margin: 0.2em 0 0.1em;
-    font-size: 0.85em;
+    /* Same text size as the time display; the gap to the timeline matches the one
+       between timeline and buttons. padding-left is set by the script so the line
+       starts flush with the timeline. */
+    margin: 0.2em 0 0.7em;
+    font-size: 1em;
     line-height: 1.5;
     color: var(--pbi-text);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -53,7 +56,7 @@
 /* Small screens: keep it to the essentials. */
 @media (max-width: 40em) {
     .pbiOsd {
-        font-size: 0.78em;
+        font-size: 0.9em;
         gap: 0.2em 0.7em;
     }
 

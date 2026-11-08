@@ -565,6 +565,7 @@
             }
             el.title = m.tooltip.join('\n');
             el.classList.remove('hide');
+            alignToTimeline(osd);
         }).catch(function (e) {
             console.warn('PlaybackInfo: could not load playback info', e);
         }).then(function () {
@@ -572,6 +573,29 @@
                 state.busy = false;
             }
         });
+    }
+
+    // Indent the line so it starts flush with the timeline. The time text left of the
+    // timeline grows (0:05 → 1:23:45), so this is re-measured on every tick.
+    function alignToTimeline(osd) {
+        var el = state.el;
+        if (!el || !osd.contains(el)) {
+            return;
+        }
+        var slider = osd.querySelector('.osdPositionSlider') || osd.querySelector('.sliderContainer');
+        if (!slider) {
+            return;
+        }
+        var s = slider.getBoundingClientRect();
+        var e = el.getBoundingClientRect(); // border box: its left edge does not move with padding
+        if (!s.width || !e.width) {
+            return; // not laid out (hidden); keep the last value
+        }
+        var indent = Math.max(0, Math.round(s.left - e.left));
+        var value = indent ? indent + 'px' : '';
+        if (el.style.paddingLeft !== value) {
+            el.style.paddingLeft = value;
+        }
     }
 
     function tick() {
@@ -600,6 +624,7 @@
         if (!visible) {
             return;
         }
+        alignToTimeline(osd);
         var age = Date.now() - state.lastFetch;
         if ((becameVisible && age > 1500) || age >= REFRESH_MS) {
             refresh(osd);
