@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1016"/>
+      <stop offset="1" stop-color="#121822"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26364a"/>
+      <stop offset="1" stop-color="#151d28"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4fc3f7"/>
+      <stop offset="1" stop-color="#03a9f4"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- player -->
+  <g filter="url(#shadow)">
+    <rect x="250" y="70" width="780" height="330" rx="14" fill="url(#screen)"/>
+  </g>
+  <rect x="250" y="210" width="780" height="190" rx="14" fill="url(#fade)"/>
+  <!-- title placeholder -->
+  <rect x="285" y="250" width="260" height="16" rx="8" fill="#f2f4f7" opacity="0.9"/>
+  <!-- info line -->
+  <g font-family="Segoe UI, Noto Sans, Arial, sans-serif" font-size="21" fill="#f2f4f7">
+    <text x="285" y="302" opacity="0.85">1080p HEVC HDR10</text>
+    <text x="492" y="302" opacity="0.85">12 Mbit/s</text>
+    <rect x="604" y="282" width="124" height="28" rx="4" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+    <text x="666" y="302" text-anchor="middle" fill="#4fc3f7" font-weight="600">Direct Play</text>
+  </g>
+  <!-- progress bar -->
+  <rect x="285" y="330" width="710" height="6" rx="3" fill="#ffffff" opacity="0.25"/>
+  <rect x="285" y="330" width="300" height="6" rx="3" fill="url(#blue)"/>
+  <circle cx="585" cy="333" r="9" fill="#f2f4f7"/>
+  <!-- buttons -->
+  <g fill="#f2f4f7" opacity="0.85">
+    <rect x="626" y="352" width="9" height="32" rx="2"/>
+    <rect x="645" y="352" width="9" height="32" rx="2"/>
+    <polygon points="590,354 590,382 566,368"/>
+    <polygon points="566,354 566,382 542,368"/>
+    <polygon points="690,354 690,382 714,368"/>
+    <polygon points="714,354 714,382 738,368"/>
+  </g>
+
+  <text x="640" y="560" text-anchor="middle" font-family="Segoe UI, Noto Sans, Arial, sans-serif" font-size="110" font-weight="700" fill="#f2f4f7">Playback <tspan fill="#29b6f6">Info</tspan></text>
+</svg>

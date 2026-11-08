@@ -1,0 +1,62 @@
+/* Playback Info: one quiet line in the web player's bottom controls. */
+.pbiOsd {
+    --pbi-text: rgba(255, 255, 255, 0.78);
+    --pbi-border: rgba(255, 255, 255, 0.32);
+    --pbi-transcode: #ffc46b;
+    --pbi-transcode-border: rgba(255, 196, 107, 0.55);
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25em 0.9em;
+    margin: 0.2em 0 0.1em;
+    font-size: 0.85em;
+    line-height: 1.5;
+    color: var(--pbi-text);
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.pbiOsd.hide {
+    display: none;
+}
+
+.pbiItem {
+    white-space: nowrap;
+}
+
+.pbiArrow {
+    opacity: 0.6;
+    margin: 0 0.15em;
+}
+
+.pbiMethod {
+    padding: 0 0.5em;
+    border: 1px solid var(--pbi-border);
+    border-radius: 0.2em;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.pbiMethod-transcode {
+    color: var(--pbi-transcode);
+    border-color: var(--pbi-transcode-border);
+}
+
+.pbiReasons {
+    white-space: normal;
+    opacity: 0.8;
+}
+
+/* Small screens: keep it to the essentials. */
+@media (max-width: 40em) {
+    .pbiOsd {
+        font-size: 0.78em;
+        gap: 0.2em 0.7em;
+    }
+
+    .pbiReasons {
+        display: none;
+    }
+}

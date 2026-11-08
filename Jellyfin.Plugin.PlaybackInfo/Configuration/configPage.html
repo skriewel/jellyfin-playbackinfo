@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Playback Info</title>
+</head>
+<body>
+<div id="PlaybackInfoConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+            <form id="PlaybackInfoConfigForm">
+                <div class="verticalSection">
+                    <h2 class="sectionTitle">Playback Info</h2>
+                    <p class="fieldDescription">Shows video quality and play method in the web player while the playback controls are visible. Changes apply after reloading the web client (Ctrl+F5).</p>
+                </div>
+
+                <div class="checkboxContainer">
+                    <label class="emby-checkbox-label">
+                        <input id="Enabled" type="checkbox" is="emby-checkbox" />
+                        <span>Enable playback info</span>
+                    </label>
+                </div>
+
+                <h3 class="sectionTitle">Content</h3>
+                <p class="fieldDescription">Resolution and play method (Direct Play, Direct Stream, Transcoding) are always shown. Hovering the line shows all details.</p>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowCodec" type="checkbox" is="emby-checkbox" />
+                        <span>Video codec</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">e.g. HEVC 10-bit</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowHdr" type="checkbox" is="emby-checkbox" />
+                        <span>HDR format</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">HDR10, HDR10+, Dolby Vision, HLG. Nothing is shown for SDR.</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowBitrate" type="checkbox" is="emby-checkbox" />
+                        <span>Bitrate</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">The bitrate the player receives: the file's bitrate, or the target bitrate while transcoding.</div>
+                </div>
+                <div class="checkboxContainer">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowAudio" type="checkbox" is="emby-checkbox" />
+                        <span>Audio codec and channels</span>
+                    </label>
+                </div>
+
+                <h3 class="sectionTitle">Transcoding</h3>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowSource" type="checkbox" is="emby-checkbox" />
+                        <span>Show the original quality</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">e.g. "4K HEVC → 1080p H.264"</div>
+                </div>
+                <div class="checkboxContainer">
+                    <label class="emby-checkbox-label">
+                        <input id="ShowReasons" type="checkbox" is="emby-checkbox" />
+                        <span>Show why the server transcodes</span>
+                    </label>
+                </div>
+
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <span>Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            var pluginId = '67fca38c-954e-4db0-8a82-eaaaf1bde3da';
+            var page = document.querySelector('#PlaybackInfoConfigPage');
+            var bools = ['Enabled', 'ShowCodec', 'ShowHdr', 'ShowBitrate', 'ShowAudio', 'ShowSource', 'ShowReasons'];
+
+            page.addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    bools.forEach(function (k) { page.querySelector('#' + k).checked = !!config[k]; });
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            page.querySelector('#PlaybackInfoConfigForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    bools.forEach(function (k) { config[k] = page.querySelector('#' + k).checked; });
+                    return ApiClient.updatePluginConfiguration(pluginId, config);
+                }).then(function (result) {
+                    Dashboard.processPluginConfigurationUpdateResult(result);
+                });
+                return false;
+            });
+        })();
+    </script>
+</div>
+</body>
+</html>
