@@ -7,7 +7,7 @@ Videoqualität und der Wiedergabeart – ähnlich wie Fladder:
 
 - Auflösung (`4K`, `1080p`, `720p` …), Videocodec mit Farbtiefe (`HEVC 10-bit`) und HDR-Format
   (`HDR10`, `HDR10+`, `Dolby Vision`, `HLG`)
-- Bitrate: die der Datei bzw. beim Transcoding die Zielbitrate
+- Bitrate: die der Datei bzw. beim Transcoding des Bildes die Zielbitrate (wird nur der Ton umgewandelt, die der Datei)
 - Wiedergabeart: **Direct Play**, **Direct Stream** oder **Transcoding** (bzw. „Transcoding (nur Audio)“)
 - beim Transcoding die Ausgangsqualität (`4K HEVC 10-bit → 1080p H.264`) und der Grund aus Jellyfins
   `TranscodeReasons`, z. B. „Bitrate über dem Limit“ oder „Audiocodec nicht unterstützt“
@@ -35,12 +35,12 @@ Voraussetzung: Das GitHub-Repo ist öffentlich, sonst kann Jellyfin Manifest und
 
 ### Manuell
 
-1. `build.ps1` ausführen (oder das fertige `dist\PlaybackInfo_1.0.0.2.zip` nehmen).
-2. Den Ordner `dist\PlaybackInfo_1.0.0.2` (mit `Jellyfin.Plugin.PlaybackInfo.dll` und `meta.json`) in das
+1. `build.ps1` ausführen (oder das fertige `dist\PlaybackInfo_1.0.0.3.zip` nehmen).
+2. Den Ordner `dist\PlaybackInfo_1.0.0.3` (mit `Jellyfin.Plugin.PlaybackInfo.dll` und `meta.json`) in das
    Plugin-Verzeichnis des Servers kopieren:
-   - Docker: `/config/plugins/PlaybackInfo_1.0.0.2/`
-   - Linux (Paket): `/var/lib/jellyfin/plugins/PlaybackInfo_1.0.0.2/`
-   - Windows: `%ProgramData%\Jellyfin\Server\plugins\PlaybackInfo_1.0.0.2\`
+   - Docker: `/config/plugins/PlaybackInfo_1.0.0.3/`
+   - Linux (Paket): `/var/lib/jellyfin/plugins/PlaybackInfo_1.0.0.3/`
+   - Windows: `%ProgramData%\Jellyfin\Server\plugins\PlaybackInfo_1.0.0.3\`
 3. Jellyfin neu starten und im Browser einmal hart neu laden (Strg+F5).
 4. Einstellungen: *Dashboard → Plugins → Playback Info*.
 
@@ -55,7 +55,7 @@ Auflösung und Wiedergabeart werden immer angezeigt.
 | Plugin aktiv | an | Hauptschalter |
 | Videocodec | an | z. B. `HEVC 10-bit` |
 | HDR-Format | an | HDR10, HDR10+, Dolby Vision, HLG; bei SDR erscheint nichts |
-| Bitrate | an | Bitrate der Datei bzw. Zielbitrate beim Transcoding |
+| Bitrate | an | Bitrate der Datei bzw. Zielbitrate, wenn das Bild transkodiert wird |
 | Audiocodec und Kanäle | aus | z. B. `AC3 5.1` |
 | Ausgangsqualität beim Transcoding | an | `4K HEVC → 1080p H.264` |
 | Grund für das Transcoding | an | aus `TranscodeReasons` (auf schmalen Bildschirmen ausgeblendet) |

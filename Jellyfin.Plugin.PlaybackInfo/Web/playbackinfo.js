@@ -61,6 +61,7 @@
             audio: 'Audio',
             bitrate: 'Bitrate',
             progress: 'Transcoded',
+            target: 'max.',
             directPlayHint: 'The file is played as it is.',
             directStreamHint: 'Video and audio are passed through, only the container is changed.'
         },
@@ -80,6 +81,7 @@
             audio: 'Audio',
             bitrate: 'Bitrate',
             progress: 'Transkodiert',
+            target: 'max.',
             directPlayHint: 'Die Datei wird unverändert abgespielt.',
             directStreamHint: 'Video und Audio werden durchgereicht, nur der Container wird gewechselt.'
         }
@@ -384,7 +386,9 @@
                     var outAudio = [codecName(ti.AudioCodec), channelsText(ti.AudioChannels)].filter(Boolean).join(' ');
                     m.audio = cfg.showSource && srcAudio && srcAudio !== outAudio ? srcAudio + ' → ' + outAudio : outAudio;
                 }
-                if (ti.Bitrate) {
+                // TranscodingInfo.Bitrate is the server's target/maximum. When the video is
+                // only copied, the stream carries roughly the source bitrate, so keep that.
+                if (ti.Bitrate && !videoDirect) {
                     m.bitrate = ti.Bitrate;
                 }
             }
@@ -409,7 +413,7 @@
             tip.push(t('output') + ': ' + [ti.Container,
                 ti.IsVideoDirect ? t('video') + ' direct' : [ti.Width && ti.Height ? ti.Width + '×' + ti.Height : '', codecName(ti.VideoCodec)].filter(Boolean).join(' '),
                 ti.IsAudioDirect ? t('audio') + ' direct' : [codecName(ti.AudioCodec), channelsText(ti.AudioChannels)].filter(Boolean).join(' '),
-                bitrateText(ti.Bitrate)].filter(Boolean).join(', '));
+                ti.Bitrate ? t('target') + ' ' + bitrateText(ti.Bitrate) : ''].filter(Boolean).join(', '));
             if (ti.HardwareAccelerationType && ti.HardwareAccelerationType !== 'none') {
                 tip.push(t('hw') + ': ' + ti.HardwareAccelerationType);
             } else if (m.method === 'Transcode') {
